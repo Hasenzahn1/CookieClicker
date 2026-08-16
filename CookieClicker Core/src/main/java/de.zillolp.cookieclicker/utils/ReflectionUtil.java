@@ -15,7 +15,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.world.item.component.ResolvableProfile;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.entity.SkullBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.apache.commons.lang.reflect.FieldUtils;
@@ -86,9 +86,13 @@ public class ReflectionUtil {
     }
 
     public void sendPacket(Packet<?> packet, Player player) {
-        String sendFieldName = "b";
-        if (versionNumber <= 20 && subVersion <= 1) {
+        String sendFieldName;
+        if (!isSpigot() && ((versionNumber == 20 && subVersion > 5) || versionNumber >= 21)) {
+            sendFieldName = "send";
+        } else if (versionNumber <= 20 && subVersion <= 1) {
             sendFieldName = "a";
+        } else {
+            sendFieldName = "b";
         }
         Object playerConnection = getPlayerConnection(player);
         try {
@@ -139,7 +143,7 @@ public class ReflectionUtil {
                 CompoundTag profileTag = createProfileTag(gameProfile, playerProfile);
                 CompoundTag nbtTag = new CompoundTag();
                 nbtTag.put("profile", profileTag);
-                sendPacket(new ClientboundBlockEntityDataPacket(blockPos, BlockEntityType.SKULL, nbtTag), player);
+                sendPacket(new ClientboundBlockEntityDataPacket(blockPos, BlockEntityTypes.SKULL, nbtTag), player);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException exception) {
                 logger.log(Level.SEVERE, "Error creating manual NBT packet", exception);
             }
@@ -147,6 +151,9 @@ public class ReflectionUtil {
     }
 
     private String getBlockStateFieldName() {
+        if (versionNumber >= 26) {
+            return "getBlockState";
+        }
         if (versionNumber <= 20) {
             if (subVersion <= 2) {
                 return "q";
@@ -168,6 +175,9 @@ public class ReflectionUtil {
     }
 
     private String getOwnerFieldNameNewVersion() {
+        if (versionNumber >= 26) {
+            return "owner";
+        }
         if (versionNumber <= 20 || subVersion <= 4) {
             return "i";
         } else if (subVersion < 10) {
@@ -396,7 +406,9 @@ public class ReflectionUtil {
             Class<?> resolvableProfileClass = ResolvableProfile.class;
             Class<?> gameProfileClass = gameProfile.getClass();
             GameProfile preparedProfile = (GameProfile) gameProfile;
-            if (versionNumber < 21 || (versionNumber == 21 && subVersion < 10)) {
+            if (versionNumber >= 26) {
+                return resolvableProfileClass.getMethod("createResolved", gameProfileClass).invoke(null, preparedProfile);
+            } else if (versionNumber < 21 || (versionNumber == 21 && subVersion < 10)) {
                 return resolvableProfileClass.getConstructor(gameProfileClass).newInstance(preparedProfile);
             } else {
                 try {

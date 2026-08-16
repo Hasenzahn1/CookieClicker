@@ -8,11 +8,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
+import net.minecraft.world.scores.TeamColor;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 public class CookieExplosionEvent extends ClickerEvent {
     private final CookieClicker plugin;
@@ -36,7 +38,7 @@ public class CookieExplosionEvent extends ClickerEvent {
     public void addGlowing(Item item) {
         plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
             PlayerTeam playerTeam = new PlayerTeam(new Scoreboard(), teamName);
-            playerTeam.setColor(ChatFormatting.GOLD);
+            playerTeam.setColor(Optional.of(TeamColor.GOLD));
             reflectionUtil.sendPacket(ClientboundSetPlayerTeamPacket.createPlayerPacket(playerTeam, teamName, ClientboundSetPlayerTeamPacket.Action.ADD), player);
             Collection<String> players = (Collection<String>) reflectionUtil.invokeMethod(playerTeam, playersFieldName);
             String uuid = item.getUniqueId().toString();
