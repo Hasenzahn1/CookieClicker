@@ -87,7 +87,7 @@ public class ReflectionUtil {
 
     public void sendPacket(Packet<?> packet, Player player) {
         String sendFieldName;
-        if (!isSpigot() && ((versionNumber == 20 && subVersion > 5) || versionNumber >= 21)) {
+        if (((versionNumber == 20 && subVersion > 5) || versionNumber >= 21)) {
             sendFieldName = "send";
         } else if (versionNumber <= 20 && subVersion <= 1) {
             sendFieldName = "a";
@@ -331,10 +331,14 @@ public class ReflectionUtil {
         String bukkitDomain = "org.bukkit.craftbukkit.";
         try {
             String craftObjectClassName = bukkitDomain + className;
-            if (isSpigot || (versionNumber < 21 && subVersion < 6)) {
+            if ((isSpigot || (versionNumber < 21 && subVersion < 6)) && versionNumber < 26) {
                 String serverPackageName = plugin.getServer().getClass().getPackage().getName();
                 String version = serverPackageName.substring(serverPackageName.lastIndexOf(".") + 1);
                 craftObjectClassName = bukkitDomain + version + "." + className;
+                System.out.println(serverPackageName);
+                System.out.println(version);
+                System.out.println(className);
+                System.out.println(craftObjectClassName);
             }
             return Class.forName(craftObjectClassName);
         } catch (ClassNotFoundException exception) {
@@ -505,7 +509,7 @@ public class ReflectionUtil {
 
     public Object getPlayerConnection(Player player) {
         String connectionFieldName = "c";
-        if ((!(isSpigot())) && ((versionNumber == 20 && subVersion > 5) || versionNumber >= 21)) {
+        if (((versionNumber == 20 && subVersion > 5) || versionNumber >= 21)) { //!isSpigot() &&
             connectionFieldName = "connection";
         } else if (versionNumber >= 21 && subVersion > 1) {
             if (subVersion <= 5) {

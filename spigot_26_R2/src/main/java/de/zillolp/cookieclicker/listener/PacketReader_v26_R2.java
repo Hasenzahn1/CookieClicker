@@ -73,7 +73,7 @@ public class PacketReader_v26_R2 implements PacketReader {
         blockPosName = "pos";
         actionName = "action";
         handName = "hand";
-        if (isSpigot) {
+        /*if (isSpigot) {
             fieldName = "e";
             channelFieldName = "n";
             if (versionManager.getVersionNumber() == 21 && versionManager.getSubVersion() == 11) {
@@ -88,7 +88,7 @@ public class PacketReader_v26_R2 implements PacketReader {
             blockPosName = "b";
             actionName = "d";
             handName = "b";
-        }
+        }*/
     }
 
     public void inject(Player player) {
