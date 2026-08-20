@@ -328,21 +328,17 @@ public class ReflectionUtil {
     }
 
     public Class<?> getCraftObjectClass(boolean isSpigot, String className) {
-        String bukkitDomain = "org.bukkit.craftbukkit.";
-        try {
-            String craftObjectClassName = bukkitDomain + className;
-            if ((isSpigot || (versionNumber < 21 && subVersion < 6)) && versionNumber < 26) {
-                String serverPackageName = plugin.getServer().getClass().getPackage().getName();
-                String version = serverPackageName.substring(serverPackageName.lastIndexOf(".") + 1);
-                craftObjectClassName = bukkitDomain + version + "." + className;
-                System.out.println(serverPackageName);
-                System.out.println(version);
-                System.out.println(className);
-                System.out.println(craftObjectClassName);
-            }
-            return Class.forName(craftObjectClassName);
-        } catch (ClassNotFoundException exception) {
-            logger.log(Level.SEVERE, "Error getting CraftObject class", exception);
+                String bukkitDomain = "org.bukkit.craftbukkit.";
+                try {
+                    String craftObjectClassName = bukkitDomain + className;
+                    if ((isSpigot || (versionNumber < 21 && subVersion < 6)) && versionNumber < 26) {
+                        String serverPackageName = plugin.getServer().getClass().getPackage().getName();
+                        String version = serverPackageName.substring(serverPackageName.lastIndexOf(".") + 1);
+                        craftObjectClassName = bukkitDomain + version + "." + className;
+                    }
+                    return Class.forName(craftObjectClassName);
+                } catch (ClassNotFoundException exception) {
+                    logger.log(Level.SEVERE, "Error getting CraftObject class", exception);
             return null;
         }
     }
